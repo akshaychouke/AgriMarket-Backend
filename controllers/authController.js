@@ -117,3 +117,9 @@ export const loginController = async (req, res) => {
     res.status(500).json({ success: false, message: "Error in Login", error });
   }
 };
+
+// to test user login method ->GET
+export const testController = async (req, res) => {
+  // console.log("testController for protected route");
+  res.status(200).json({ success: true, message: "Protected route" });
+};
