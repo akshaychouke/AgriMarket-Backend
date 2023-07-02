@@ -1,5 +1,6 @@
 import userModel from "../models/userModel.js";
-import { hashPassword } from "../helpers/authHelper.js";
+import { hashPassword, comparePassword } from "../helpers/authHelper.js";
+import JWT from "jsonwebtoken";
 
 // to register user in database and return success message and user details in response if successful else return error message and error
 export const registerController = async (req, res) => {
@@ -64,5 +65,55 @@ export const registerController = async (req, res) => {
     res
       .status(500)
       .json({ sucess: false, message: "Error in Registration", error });
+  }
+};
+
+// to login user method ->POST
+export const loginController = async (req, res) => {
+  try {
+    const { email, password } = req.body; //to get email and password from request body
+
+    // to validate input fields are not empty
+    if (!email || !password) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Email and Password are required" });
+    }
+
+    // to check if user exists
+    const user = await userModel.findOne({ email: email });
+    if (!user) {
+      return res
+        .status(400)
+        .json({ success: false, message: "User does not exist" });
+    }
+    // to compare password with hashed password in database  - comparePassword is a helper function imported from authHelper.js
+    const isMatch = await comparePassword(password, user.password); // user.password is hashed password in database
+    if (!isMatch) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid Password" });
+    }
+
+    // to generate token
+    const token = await JWT.sign({ _id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "7d",
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "User logged in successfully",
+      user: {
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        address: user.address,
+        role: user.role,
+      },
+      token,
+    });
+  } catch (error) {
+    console.log("error in loginController", error.message);
+    res.status(500).json({ success: false, message: "Error in Login", error });
   }
 };
