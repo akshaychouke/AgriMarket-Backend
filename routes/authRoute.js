@@ -20,8 +20,13 @@ router.post("/forgot-password",forgotPasswordController);
 
 router.get("/test", requireSignIn, isAdmin, testController); // to test user login passing the requireSignIn and isAdmin middleware
 
-//protected route auth
+//protected route auth for user
 router.get("/user-auth", requireSignIn, (req, res) => {
+  res.status(200).send({ ok: true });
+});
+
+//protected route auth for admin
+router.get("/admin-auth", requireSignIn,isAdmin, (req, res) => {
   res.status(200).send({ ok: true });
 });
 export default router;
