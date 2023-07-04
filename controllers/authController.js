@@ -5,7 +5,7 @@ import JWT from "jsonwebtoken";
 // to register user in database and return success message and user details in response if successful else return error message and error
 export const registerController = async (req, res) => {
   try {
-    const { name, email, password, phone, address } = req.body;
+    const { name, email, password, phone, address,answer } = req.body;
 
     // to validate input fields are not empty
     if (!name) {
@@ -33,7 +33,11 @@ export const registerController = async (req, res) => {
         .status(400)
         .json({ success: false, message: "Address is required" });
     }
-
+    if (!answer) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Answer is required" });
+    }
     // to check if user already exists
     const existingUser = await userModel.findOne({ email: email });
     if (existingUser) {
@@ -52,6 +56,7 @@ export const registerController = async (req, res) => {
       password: hashedPassword,
       phone,
       address,
+      answer,
     });
 
     // to save user in database
@@ -115,6 +120,47 @@ export const loginController = async (req, res) => {
   } catch (error) {
     console.log("error in loginController", error.message);
     res.status(500).json({ success: false, message: "Error in Login", error });
+  }
+};
+
+// to forgot password method ->POST
+export const forgotPasswordController = async (req, res) => {
+  try {
+    const { email, answer, newpassword } = req.body;
+
+    // to validate input fields are not empty
+    if (!email) {
+      res.status(400).json({ success: false, message: "Email is required" });
+    }
+    if (!answer) {
+      res.status(400).json({ success: false, message: "Answer is required" });
+    }
+    if (!newpassword) {
+      res
+        .status(400)
+        .json({ success: false, message: "New Password is required" });
+    }
+
+    // to check if user and answer exists
+
+    const user = await userModel.findOne({ email: email, answer: answer });
+
+    //validate user exists or not
+    if (!user) {
+      res.status(400).json({ success: false, message: "User does not exist" });
+    }
+    // to hash new password before saving in database
+    const hashedPass = await hashPassword(newpassword);
+    // to update password in database
+    await userModel.findByIdAndUpdate(user._id, { password: hashedPass });
+    res
+      .status(200)
+      .json({ success: true, message: "Password updated successfully" });
+  } catch (error) {
+    console.log("error in forgotPasswordController", error.message);
+    res
+      .status(500)
+      .json({ success: false, message: "Error in forgot password", error });
   }
 };
 
