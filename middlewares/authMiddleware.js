@@ -26,6 +26,8 @@ export const isAdmin = async (req, res, next) => {
     next(); //if user is admin then next() will be called
   } catch (error) {
     console.log("error in isAdmin middleware", error.message);
-    res.status(401).json({ success: false, message: "Error in admin access middleware" });
+    res
+      .status(401)
+      .json({ success: false, message: "Error in admin access middleware" });
   }
 };
