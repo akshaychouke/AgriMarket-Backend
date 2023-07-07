@@ -121,7 +121,7 @@ export const getProductPhotoController = async (req, res) => {
 
     if (productPhoto.photo.data) {
       res.set("Content-Type", productPhoto.photo.contentType);
-      return res.status(200).json(productPhoto.photo.data);
+      return res.status(200).send(productPhoto.photo.data);
     }
   } catch (error) {
     console.log("error in getProductPhotoController", error.message);
@@ -218,6 +218,69 @@ export const deleteProductController = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "error in deleteProductController",
+      error,
+    });
+  }
+};
+
+//products filter controller
+export const productFilterController = async (req, res) => {
+  try {
+    const { checked, radio } = req.body;
+    let args = {};
+    if (checked.length > 0) {
+      args.category = checked;
+    }
+    if (radio.length) {
+      args.price = {
+        $gte: radio[0],
+        $lte: radio[1],
+      };
+    }
+    const products = await productModel.find(args);
+    res.status(200).json({ success: true, products });
+  } catch (error) {
+    console.log("error in productFilterController", error.message);
+    res.status(500).json({
+      success: false,
+      message: "error in productFilterController",
+      error,
+    });
+  }
+};
+
+//product count controller
+export const productCountController = async (req, res) => {
+  try {
+    const total = await productModel.find({}).estimatedDocumentCount();
+    res.status(200).json({ success: true, total });
+  } catch (error) {
+    console.log("error in productCountController", error.message);
+    res.status(500).json({
+      success: false,
+      message: "error in productCountController",
+      error,
+    });
+  }
+};
+
+//product list controller
+export const productListController = async (req, res) => {
+  try {
+    const perPage = 6;
+    const page = req.params.page || 1;
+    const products = await productModel
+      .find({})
+      .select("-photo")
+      .skip(((page - 1) * perPage))
+      .limit(perPage)
+      .sort({ createdAt: -1 });
+      res.status(200).json({ success: true, products });
+  } catch (error) {
+    console.log("error in productListController", error.message);
+    res.status(500).json({
+      success: false,
+      message: "error in productListController",
       error,
     });
   }
