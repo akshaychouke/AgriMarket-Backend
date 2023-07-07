@@ -272,15 +272,57 @@ export const productListController = async (req, res) => {
     const products = await productModel
       .find({})
       .select("-photo")
-      .skip(((page - 1) * perPage))
+      .skip((page - 1) * perPage)
       .limit(perPage)
       .sort({ createdAt: -1 });
-      res.status(200).json({ success: true, products });
+    res.status(200).json({ success: true, products });
   } catch (error) {
     console.log("error in productListController", error.message);
     res.status(500).json({
       success: false,
       message: "error in productListController",
+      error,
+    });
+  }
+};
+
+//search product controller
+export const searchProductController = async (req, res) => {
+  try {
+    const { keyword } = req.params;
+    const result = await productModel
+      .find({
+        $or: [
+          { name: { $regex: keyword, $options: "i" } },
+          { description: { $regex: keyword, $options: "i" } },
+        ],
+      })
+      .select("-photo");
+    res.status(200).json({ success: true, result });
+  } catch (error) {
+    console.log("error in searchProductController", error.message);
+    res.status(500).json({
+      success: false,
+      message: "error in searchProductController",
+      error,
+    });
+  }
+};
+
+//similar product controller
+export const similarProductsController = async (req, res) => {
+  try {
+    const { pid, cid } = req.params;
+    const products = await productModel
+      .find({ category: cid, _id: { $ne: pid } })
+      .limit(3)
+      .select("-photo");
+    res.status(200).json({ success: true, products });
+  } catch (error) {
+    console.log("error in similarProductsController", error.message);
+    res.status(500).json({
+      success: false,
+      message: "error in similarProductsController",
       error,
     });
   }
