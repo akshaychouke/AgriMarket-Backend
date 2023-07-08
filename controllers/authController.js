@@ -5,7 +5,7 @@ import JWT from "jsonwebtoken";
 // to register user in database and return success message and user details in response if successful else return error message and error
 export const registerController = async (req, res) => {
   try {
-    const { name, email, password, phone, address,answer } = req.body;
+    const { name, email, password, phone, address, answer } = req.body;
 
     // to validate input fields are not empty
     if (!name) {
@@ -168,4 +168,42 @@ export const forgotPasswordController = async (req, res) => {
 export const testController = async (req, res) => {
   // console.log("testController for protected route");
   res.status(200).json({ success: true, message: "Protected route" });
+};
+
+//update user profile
+export const updateProfileController = async (req, res) => {
+  try {
+    const { name, email, phone, address, password } = req.body;
+    const user = await userModel.findById(req.user._id);
+    if (password && password.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: "Password is required and should be atleast 6 characters long",
+      });
+    }
+    const hashedPassword = password ? await hashPassword(password) : undefined;
+    const updatedUser = await userModel.findByIdAndUpdate(
+      req.user._id,
+      {
+        name: name || user.name,
+        email: email || user.email,
+        phone: phone || user.phone,
+        address: address || user.address,
+        password: hashedPassword || user.password,
+      },
+      { new: true }
+    );
+    res
+      .status(200)
+      .json({
+        success: true,
+        message: "Profile updated successfully",
+        updatedUser,
+      });
+  } catch (error) {
+    console.log("error in updateProfileController", error.message);
+    res
+      .status(500)
+      .json({ success: false, message: "Error in update profile", error });
+  }
 };
