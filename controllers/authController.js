@@ -224,3 +224,44 @@ export const getOrdersController = async (req, res) => {
     });
   }
 };
+
+//get all orders controller
+export const getAllOrdersController = async (req, res) => {
+  try {
+    const orders = await orderModel
+      .find({})
+      .populate("products", "-photo")
+      .populate("buyer", "name")
+      .sort({ createdAt: -1 });
+    res.json(orders);
+  } catch (error) {
+    console.log("Error in getAllOrdersController", error.message);
+    res.status(500).send({
+      success: false,
+      message: "Error while Geting Orders",
+      error,
+    });
+  }
+};
+
+//order status update controller
+export const orderStatusController = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const { status } = req.body;
+
+    const order = await orderModel.findByIdAndUpdate(
+      orderId,
+      { status },
+      { new: true }
+    );
+    res.json(order);
+  } catch (error) {
+    console.log("Error in orderStatusController", error.message);
+    res.status(500).send({
+      success: false,
+      message: "Error while updating order status",
+      error,
+    });
+  }
+};
