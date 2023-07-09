@@ -207,3 +207,4 @@ export const updateProfileController = async (req, res) => {
       .json({ success: false, message: "Error in update profile", error });
   }
 };
+  
