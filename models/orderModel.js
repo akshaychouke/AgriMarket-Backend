@@ -6,13 +6,13 @@ const orderSchema = new mongoose.Schema(
     products: [
       {
         type: mongoose.ObjectId,
-        ref: "Product",
+        ref: "product",
       },
     ],
     payment: {},
     buyer: {
       type: mongoose.ObjectId,
-      ref: "User",
+      ref: "user",
     },
     status: {
       type: String,

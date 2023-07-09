@@ -1,4 +1,5 @@
 import userModel from "../models/userModel.js";
+import orderModel from "../models/orderModel.js";
 import { hashPassword, comparePassword } from "../helpers/authHelper.js";
 import JWT from "jsonwebtoken";
 
@@ -193,13 +194,11 @@ export const updateProfileController = async (req, res) => {
       },
       { new: true }
     );
-    res
-      .status(200)
-      .json({
-        success: true,
-        message: "Profile updated successfully",
-        updatedUser,
-      });
+    res.status(200).json({
+      success: true,
+      message: "Profile updated successfully",
+      updatedUser,
+    });
   } catch (error) {
     console.log("error in updateProfileController", error.message);
     res
@@ -207,4 +206,21 @@ export const updateProfileController = async (req, res) => {
       .json({ success: false, message: "Error in update profile", error });
   }
 };
-  
+
+//get orders controller
+export const getOrdersController = async (req, res) => {
+  try {
+    const orders = await orderModel
+      .find({ buyer: req.user._id })
+      .populate("products", "-photo")
+      .populate("buyer", "name");
+    res.json(orders);
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).send({
+      success: false,
+      message: "Error while Geting Orders",
+      error,
+    });
+  }
+};

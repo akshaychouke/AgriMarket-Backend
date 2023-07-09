@@ -395,7 +395,7 @@ export const braintreePaymentController = async (req, res) => {
           }).save();
           res.json({ ok: true });
         } else {
-          res.status(500).send(error);
+          res.status(500).send(err);
         }
       }
     );
