@@ -12,7 +12,7 @@ const app = express();
 //middelwares
 app.use(cors());
 app.use(express.json({ limit: '50mb' })); // Increase the payload size limit to 50MB
-app.use(morgan("dev"));
+// app.use(morgan("dev"));        //this is for logging
 
 //routes
 app.use("/api/v1/auth", authRoutes);
