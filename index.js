@@ -20,7 +20,7 @@ app.use("/api/v1/category", categoryRoutes);
 app.use("/api/v1/product", productRoutes);
 //res api
 app.get("/", (req, res) => {
-  res.send("Welcome to ecommerce!");
+  res.send("<h2>Welcome to Agrimarket Backend!</h2>");
 });
 
 //connect to database
